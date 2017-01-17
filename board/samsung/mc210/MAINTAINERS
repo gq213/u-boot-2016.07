@@ -1,0 +1,6 @@
+MC210 BOARD
+M:	gq213 <gaoqiang1211@gmail.com>
+S:	Maintained
+F:	board/samsung/mc210/
+F:	include/configs/mc210.h
+F:	configs/mc210_defconfig

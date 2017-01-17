@@ -412,6 +412,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_RAUMFELD_SPEAKER     2415
 #define MACH_TYPE_TNETV107X            2418
 #define MACH_TYPE_SMDKV210             2456
+#define MACH_TYPE_MC210                2457
 #define MACH_TYPE_OMAP_ZOOM3           2464
 #define MACH_TYPE_OMAP_3630SDP         2465
 #define MACH_TYPE_SMARTQ7              2479
@@ -5870,6 +5871,18 @@ extern unsigned int __machine_arch_type;
 # define machine_is_smdkv210()	(machine_arch_type == MACH_TYPE_SMDKV210)
 #else
 # define machine_is_smdkv210()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MC210
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MC210
+# endif
+# define machine_is_mc210()	(machine_arch_type == MACH_TYPE_MC210)
+#else
+# define machine_is_mc210()	(0)
 #endif
 
 #ifdef CONFIG_MACH_OMAP_ZOOM3

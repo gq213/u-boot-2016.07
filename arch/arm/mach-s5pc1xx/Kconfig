@@ -8,6 +8,10 @@ config TARGET_S5P_GONI
 	bool "S5P Goni board"
 	select OF_CONTROL
 
+config TARGET_MC210
+	bool "mc210 board"
+	select OF_CONTROL
+
 config TARGET_SMDKC100
 	bool "Support smdkc100 board"
 	select OF_CONTROL
@@ -18,6 +22,7 @@ config SYS_SOC
 	default "s5pc1xx"
 
 source "board/samsung/goni/Kconfig"
+source "board/samsung/mc210/Kconfig"
 source "board/samsung/smdkc100/Kconfig"
 
 endif
