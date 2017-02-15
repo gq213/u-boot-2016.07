@@ -11,6 +11,7 @@ config TARGET_S5P_GONI
 config TARGET_MC210
 	bool "mc210 board"
 	select OF_CONTROL
+	select SUPPORT_SPL
 
 config TARGET_SMDKC100
 	bool "Support smdkc100 board"
