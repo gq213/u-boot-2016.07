@@ -8,5 +8,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= mc210.o onenand.o
+obj-y	:= mc210.o
 obj-y	+= lowlevel_init.o
