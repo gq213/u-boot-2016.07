@@ -8,7 +8,11 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifndef CONFIG_SPL_BUILD
 obj-y	= cache.o
 obj-y	+= reset.o
 
 obj-y	+= clock.o
+else
+obj-y	= spl_boot.o
+endif

@@ -31,8 +31,9 @@
  */
 struct var_size_header {
 	uint32_t spl_size;
+	uint32_t reserved0;
 	uint32_t spl_checksum;
-	uint32_t reserved[2];
+	uint32_t reserved1;
 };
 
 static const char *prog_name;

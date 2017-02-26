@@ -7,10 +7,12 @@
 
 extra-y	:= start.o
 
+ifndef CONFIG_SPL_BUILD
 obj-y	+= cache_v7.o cache_v7_asm.o
 
 obj-y	+= cpu.o cp15.o
 obj-y	+= syslib.o
+endif
 
 ifneq ($(CONFIG_AM43XX)$(CONFIG_AM33XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TEGRA)$(CONFIG_MX6)$(CONFIG_MX7)$(CONFIG_TI81XX)$(CONFIG_AT91FAMILY)$(CONFIG_SUNXI)$(CONFIG_ARCH_SOCFPGA),)
 ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
@@ -26,8 +28,10 @@ obj-$(CONFIG_KONA) += kona-common/
 obj-$(CONFIG_OMAP_COMMON) += omap-common/
 obj-$(CONFIG_SYS_ARCH_TIMER) += arch_timer.o
 
+ifndef CONFIG_SPL_BUILD
 ifneq (,$(filter s5pc1xx exynos,$(SOC)))
 obj-y += s5p-common/
+endif
 endif
 
 obj-$(if $(filter am33xx,$(SOC)),y) += am33xx/

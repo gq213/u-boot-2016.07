@@ -66,15 +66,12 @@ save_boot_params_ret:
 	/* the mask ROM code should have PLL and others stable */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	bl	cpu_init_cp15
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-	bl	cpu_init_crit
-#endif
 #endif
 
 	bl	_main
 
 /*------------------------------------------------------------------------------*/
-
+#if ! defined(CONFIG_SPL_BUILD)
 ENTRY(c_runtime_cpu_setup)
 /*
  * If I-cache is enabled invalidate it
@@ -88,7 +85,7 @@ ENTRY(c_runtime_cpu_setup)
 	bx	lr
 
 ENDPROC(c_runtime_cpu_setup)
-
+#endif
 /*************************************************************************
  *
  * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
@@ -251,24 +248,3 @@ skip_errata_621766:
 
 	mov	pc, r5			@ back to my caller
 ENDPROC(cpu_init_cp15)
-
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
-	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
-/*************************************************************************
- *
- * CPU_init_critical registers
- *
- * setup important registers
- * setup memory timing
- *
- *************************************************************************/
-ENTRY(cpu_init_crit)
-	/*
-	 * Jump to board specific initialization...
-	 * The Mask ROM will have already initialized
-	 * basic memory. Go here to bump up clock rate and handle
-	 * wake up conditions.
-	 */
-	b	lowlevel_init		@ go setup pll,mux,memory
-ENDPROC(cpu_init_crit)
-#endif
