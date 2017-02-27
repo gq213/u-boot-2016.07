@@ -122,6 +122,19 @@
 
 
 /*
+ * Partition and FileSystem
+ */
+#define CONFIG_DOS_PARTITION
+
+#define CONFIG_FS_FAT
+#define CONFIG_FAT_WRITE
+#define CONFIG_SUPPORT_VFAT
+
+#define CONFIG_FS_EXT4
+#define CONFIG_EXT4_WRITE
+
+
+/*
  * SPL Settings
  */
 #define CONFIG_SPL_LDSCRIPT		"board/samsung/mc210/u-boot-spl.lds"
