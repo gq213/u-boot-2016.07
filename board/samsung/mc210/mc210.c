@@ -8,6 +8,8 @@
 
 #include <common.h>
 #include <samsung/misc.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,5 +58,38 @@ int misc_init_r(void)
 	set_board_info();
 #endif
 	return 0;
+}
+#endif
+
+
+#ifdef CONFIG_GENERIC_MMC
+int board_mmc_init(bd_t *bis)
+{
+	int i, ret;
+
+	/*
+	 * MMC2 GPIO
+	 * GPG2[0]	SD_2_CLK
+	 * GPG2[1]	SD_2_CMD
+	 * GPG2[2]	SD_2_CDn	-> Not used
+	 * GPG2[3:6]	SD_2_DATA[0:3]
+	 */
+	for (i = S5PC110_GPIO_G20; i < S5PC110_GPIO_G27; i++) {
+		if (i == S5PC110_GPIO_G22)
+			continue;
+
+		/* GPG2[0:6] special function 2 */
+		gpio_cfg_pin(i, 0x2);
+		/* GPG2[0:6] pull disable */
+		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
+		/* GPG2[0:6] drv 4x */
+		gpio_set_drv(i, S5P_GPIO_DRV_4X);
+	}
+
+	ret = s5p_mmc_init(2, 4);
+	if (ret)
+		error("MMC: Failed to init SD card (MMC:2).\n");
+
+	return ret;
 }
 #endif
