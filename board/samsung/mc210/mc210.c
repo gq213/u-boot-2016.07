@@ -10,6 +10,8 @@
 #include <samsung/misc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/sromc.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -18,11 +20,35 @@ u32 get_board_rev(void)
 	return 0;
 }
 
+#ifdef CONFIG_DRIVER_DM9000
+#define CONFIG_ENV_SROM_BANK	1
+static void dm9000_pre_init(void)
+{
+	u32 smc_bw_conf, smc_bc_conf;
+
+	/* Ethernet needs bus width of 16 bits */
+	smc_bw_conf = SMC_DATA16_WIDTH(CONFIG_ENV_SROM_BANK)
+			| SMC_BYTE_ADDR_MODE(CONFIG_ENV_SROM_BANK)
+			| SMC_WAIT_ENABLE(CONFIG_ENV_SROM_BANK)
+			| SMC_BYTE_ENABLE(CONFIG_ENV_SROM_BANK);
+	smc_bc_conf = SMC_BC_TACS(0) | SMC_BC_TCOS(0) | SMC_BC_TACC(7)
+			| SMC_BC_TCOH(0) | SMC_BC_TAH(0)
+			| SMC_BC_TACP(0) | SMC_BC_PMC(0);
+
+	/* Select and configure the SROMC bank */
+	s5p_config_sromc(CONFIG_ENV_SROM_BANK, smc_bw_conf, smc_bc_conf);
+}
+#endif
+
 int board_init(void)
 {
 	/* Set Initial global variables */
 	gd->bd->bi_arch_number = MACH_TYPE_MC210;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+#ifdef CONFIG_DRIVER_DM9000
+	dm9000_pre_init();
+#endif
 
 	return 0;
 }
@@ -91,5 +117,16 @@ int board_mmc_init(bd_t *bis)
 		error("MMC: Failed to init SD card (MMC:2).\n");
 
 	return ret;
+}
+#endif
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_DRIVER_DM9000
+	return dm9000_initialize(bis);
+#else
+	return -1;
+#endif
 }
 #endif

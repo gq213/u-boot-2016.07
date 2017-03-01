@@ -135,6 +135,21 @@
 
 
 /*
+ * NetWork
+ */
+#define CONFIG_DRIVER_DM9000
+#define CONFIG_DM9000_BASE	0x88000000
+#define DM9000_IO		CONFIG_DM9000_BASE
+#define DM9000_DATA		(CONFIG_DM9000_BASE + 0x4)
+/*#define CONFIG_DM9000_DEBUG*/
+
+#define CONFIG_NETMASK		255.255.255.0
+#define CONFIG_IPADDR		192.168.169.202
+#define CONFIG_SERVERIP		192.168.169.201
+#define CONFIG_GATEWAYIP	192.168.169.1
+
+
+/*
  * SPL Settings
  */
 #define CONFIG_SPL_LDSCRIPT		"board/samsung/mc210/u-boot-spl.lds"
