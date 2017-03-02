@@ -91,8 +91,10 @@
 
 #define CONFIG_ENV_SIZE		SZ_8K
 
-/* Store ENV in memory only */
-#define CONFIG_ENV_IS_NOWHERE
+/* FLASH and environment organization */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_ENV_OFFSET		(512 + SZ_16K)	/*16 K reserved for BL1*/
 
 
 /*
