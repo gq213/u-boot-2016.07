@@ -12,6 +12,7 @@
 #include <asm/arch/mmc.h>
 #include <asm/arch/sromc.h>
 #include <netdev.h>
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -91,7 +92,7 @@ int misc_init_r(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	int i, ret;
+	int i, ret, ret_sd = 0;
 
 	/*
 	 * MMC2 GPIO
@@ -116,7 +117,33 @@ int board_mmc_init(bd_t *bis)
 	if (ret)
 		error("MMC: Failed to init SD card (MMC:2).\n");
 
-	return ret;
+	/*
+	 * SD card (T_FLASH) detect and init
+	 * T_FLASH_DETECT: GPG3[2] input mode
+	 */
+	gpio_request(S5PC110_GPIO_G32, "t_flash_detect");
+	gpio_cfg_pin(S5PC110_GPIO_G32, S5P_GPIO_INPUT);
+	gpio_set_pull(S5PC110_GPIO_G32, S5P_GPIO_PULL_UP);
+
+	if (!gpio_get_value(S5PC110_GPIO_G32)) {
+		for (i = S5PC110_GPIO_G30; i < S5PC110_GPIO_G37; i++) {
+			if (i == S5PC110_GPIO_G32)
+				continue;
+
+			/* GPG3[0:6] special function 2 */
+			gpio_cfg_pin(i, 0x2);
+			/* GPG3[0:6] pull disable */
+			gpio_set_pull(i, S5P_GPIO_PULL_NONE);
+			/* GPG3[0:6] drv 4x */
+			gpio_set_drv(i, S5P_GPIO_DRV_4X);
+		}
+
+		ret_sd = s5p_mmc_init(3, 4);
+		if (ret_sd)
+			error("MMC: Failed to init SD card (MMC:3).\n");
+	}
+
+	return ret & ret_sd;
 }
 #endif
 
