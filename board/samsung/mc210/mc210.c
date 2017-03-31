@@ -29,9 +29,7 @@ static void dm9000_pre_init(void)
 
 	/* Ethernet needs bus width of 16 bits */
 	smc_bw_conf = SMC_DATA16_WIDTH(CONFIG_ENV_SROM_BANK)
-			| SMC_BYTE_ADDR_MODE(CONFIG_ENV_SROM_BANK)
-			| SMC_WAIT_ENABLE(CONFIG_ENV_SROM_BANK)
-			| SMC_BYTE_ENABLE(CONFIG_ENV_SROM_BANK);
+			| SMC_BYTE_ADDR_MODE(CONFIG_ENV_SROM_BANK);
 	smc_bc_conf = SMC_BC_TACS(0) | SMC_BC_TCOS(0) | SMC_BC_TACC(7)
 			| SMC_BC_TCOH(0) | SMC_BC_TAH(0)
 			| SMC_BC_TACP(0) | SMC_BC_PMC(0);

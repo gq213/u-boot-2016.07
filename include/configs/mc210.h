@@ -83,7 +83,7 @@
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
-		"tftp 20008000 uImage; " \
+		"tftpboot 20008000 uImage; " \
 		"bootm 20008000\0" \
 	"nfsboot=" \
 		"set bootargs noinitrd console=ttySAC2 root=/dev/nfs rw nfsroot=192.168.169.201:/home/work/nfs/210-rootfs,v3,nolock,tcp ip=192.168.169.202 init=/linuxrc; " \
@@ -143,6 +143,7 @@
 #define CONFIG_DM9000_BASE	0x88000000
 #define DM9000_IO		CONFIG_DM9000_BASE
 #define DM9000_DATA		(CONFIG_DM9000_BASE + 0x4)
+#define CONFIG_DM9000_NO_SROM
 /*#define CONFIG_DM9000_DEBUG*/
 
 #define CONFIG_NETMASK		255.255.255.0
