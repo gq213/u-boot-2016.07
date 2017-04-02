@@ -68,6 +68,19 @@ save_boot_params_ret:
 	bl	cpu_init_cp15
 #endif
 
+#if (defined(CONFIG_POWER_HOLD) && defined(CONFIG_SPL_BUILD))
+	/* PS_HOLD(GPJ2_5) set to output high */
+	ldr		r0, =0xE0200000
+	ldr		r1, =0x00100000
+	str		r1, [r0, #0x280]
+
+	ldr		r1, =0x0400
+	str		r1, [r0, #0x288]
+
+	ldr		r1, =0x20
+	str		r1, [r0, #0x284]
+#endif
+
 	bl	_main
 
 /*------------------------------------------------------------------------------*/

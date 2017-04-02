@@ -10,6 +10,7 @@ dtb-$(CONFIG_AT91FAMILY) += at91sam9260-smartweb.dtb \
 dtb-$(CONFIG_S5PC100) += s5pc1xx-smdkc100.dtb
 dtb-$(CONFIG_MACH_GONI) += s5pc1xx-goni.dtb
 dtb-$(CONFIG_MACH_MC210) += s5pc1xx-mc210.dtb
+dtb-$(CONFIG_MACH_TQ210) += s5pc1xx-tq210.dtb
 dtb-$(CONFIG_EXYNOS4) += exynos4210-origen.dtb \
 	exynos4210-smdkv310.dtb \
 	exynos4210-universal_c210.dtb \

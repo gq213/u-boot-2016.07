@@ -1,0 +1,6 @@
+TQ210 BOARD
+M:	gq213 <gaoqiang1211@gmail.com>
+S:	Maintained
+F:	board/samsung/tq210/
+F:	include/configs/tq210.h
+F:	configs/tq210_defconfig
