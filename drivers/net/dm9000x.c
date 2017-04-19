@@ -246,7 +246,7 @@ dm9000_probe(void)
 static void
 dm9000_reset(void)
 {
-	DM9000_DBG("resetting DM9000\n");
+	printf("resetting DM9000\n");
 
 	/* Reset DM9000,
 	   see DM9000 Application Notes V1.22 Jun 11, 2004 page 29 */
@@ -259,7 +259,7 @@ dm9000_reset(void)
 	DM9000_iow(DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST));
 
 	do {
-		DM9000_DBG("resetting the DM9000, 1st reset\n");
+		printf("resetting the DM9000, 1st reset\n");
 		udelay(25); /* Wait at least 20 us */
 	} while (DM9000_ior(DM9000_NCR) & 1);
 
@@ -267,9 +267,11 @@ dm9000_reset(void)
 	DM9000_iow(DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST)); /* Issue a second reset */
 
 	do {
-		DM9000_DBG("resetting the DM9000, 2nd reset\n");
+		printf("resetting the DM9000, 2nd reset\n");
 		udelay(25); /* Wait at least 20 us */
 	} while (DM9000_ior(DM9000_NCR) & 1);
+
+	udelay(150);
 
 	/* Check whether the ethernet controller is present */
 	if ((DM9000_ior(DM9000_PIDL) != 0x0) ||
