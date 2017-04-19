@@ -132,7 +132,11 @@ void ddr_init(void)
 
 void uart_putc(char c)
 {
+#ifdef CONFIG_MACH_MC210
 	struct s5p_uart *const uart = (struct s5p_uart *)samsung_get_base_uart2();
+#else
+	struct s5p_uart *const uart = (struct s5p_uart *)samsung_get_base_uart();
+#endif
 
 	while ((readl(&uart->utrstat) & 0x4) != 0x4);
 	writeb(c, &uart->utxh);
@@ -147,8 +151,13 @@ void uart_puts(char *s)
 
 void uart_init(void)
 {
+#ifdef CONFIG_MACH_MC210
 	struct s5p_gpio_bank *const gpio = (struct s5p_gpio_bank *)samsung_get_base_gpio() + sizeof(struct s5p_gpio_bank);
 	struct s5p_uart *const uart = (struct s5p_uart *)samsung_get_base_uart2();
+#else
+	struct s5p_gpio_bank *const gpio = (struct s5p_gpio_bank *)samsung_get_base_gpio();
+	struct s5p_uart *const uart = (struct s5p_uart *)samsung_get_base_uart();
+#endif
 
 	writel(0x22, &gpio->con);
 

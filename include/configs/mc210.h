@@ -155,7 +155,7 @@
 /*
  * SPL Settings
  */
-#define CONFIG_SPL_LDSCRIPT		"board/samsung/mc210/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-s5pc1xx/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_FOOTPRINT	(16 * 1024)
 #define CONFIG_VAR_SIZE_SPL
 

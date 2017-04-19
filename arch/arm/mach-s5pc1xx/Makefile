@@ -16,4 +16,5 @@ obj-y	+= clock.o
 else
 obj-y	= spl_boot.o
 obj-y	+= lowlevel_init.o
+obj-y	+= lowlevel_init_c.o
 endif

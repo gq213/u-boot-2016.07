@@ -48,8 +48,6 @@ cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
-libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
-
 head-y		:= $(addprefix $(obj)/,$(head-y))
 libs-y		:= $(addprefix $(obj)/,$(libs-y))
 u-boot-spl-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y)))
