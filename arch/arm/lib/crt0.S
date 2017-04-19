@@ -92,9 +92,23 @@ ENTRY(_main)
 	mov	r0, #0
 	bl	board_init_f
 #else
-	bl	clock_init
-	bl	ddr_init
-	bl	uart_init
+	bl	c_runtime_cpu_setup	/* we still call old routine here */
+
+#if defined(CONFIG_POWER_HOLD)
+	/* PS_HOLD(GPJ2_5) set to output high */
+	ldr	r0, =0xE0200000
+	ldr	r1, =0x00100000
+	str	r1, [r0, #0x280]
+
+	ldr	r1, =0x0400
+	str	r1, [r0, #0x288]
+
+	ldr	r1, =0x20
+	str	r1, [r0, #0x284]
+#endif
+
+	bl	cpu_init_crit
+
 	bl	copy_bl2_to_ram
 #endif
 #if ! defined(CONFIG_SPL_BUILD)
