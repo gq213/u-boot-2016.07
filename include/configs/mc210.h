@@ -86,7 +86,7 @@
 		"tftpboot 20008000 uImage; " \
 		"bootm 20008000\0" \
 	"nfsboot=" \
-		"set bootargs noinitrd console=ttySAC2 root=/dev/nfs rw nfsroot=192.168.169.201:/home/work/nfs/210-rootfs,v3,nolock,tcp ip=192.168.169.202 init=/linuxrc; " \
+		"set bootargs noinitrd console=ttySAC2 root=/dev/nfs rw nfsroot=192.168.169.201:/home/work/nfs/rootfs,v3,nolock,tcp ip=dhcp init=/linuxrc coherent_pool=2M; " \
 		"run bootk\0"
 
 #define CONFIG_ENV_SIZE		SZ_8K
