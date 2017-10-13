@@ -86,7 +86,7 @@
 		"tftpboot 20008000 uImage; " \
 		"bootm 20008000\0" \
 	"nfsboot=" \
-		"set bootargs noinitrd console=tty0 console=ttySAC0 root=/dev/nfs rw nfsroot=192.168.169.201:/home/work/nfs/rootfs,v3,nolock,tcp ip=dhcp init=/linuxrc coherent_pool=2M; " \
+		"set bootargs noinitrd console=ttySAC0 root=/dev/nfs rw nfsroot=192.168.169.201:/home/work/nfs/rootfs,v3,nolock,tcp ip=dhcp init=/linuxrc coherent_pool=2M; " \
 		"run bootk\0"
 
 #define CONFIG_ENV_SIZE		SZ_8K
@@ -107,8 +107,8 @@
 
 #define CONFIG_SYS_TEXT_BASE		0x24800000
 
-#define CONFIG_SYS_LOAD_ADDR		0x24000000	/* 8m */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_LOAD_ADDR - 0x1000000)	/* 48m */
+#define CONFIG_SYS_LOAD_ADDR		0x24000000	/* 0x24000000~0x24800000=8m */
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_LOAD_ADDR - 0x1000000)	/* 0x20000000~0x23000000=48m */
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
@@ -156,12 +156,20 @@
  * SPL Settings
  */
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-s5pc1xx/u-boot-spl.lds"
-#define CONFIG_SPL_MAX_FOOTPRINT	(16 * 1024)
+#define CONFIG_SPL_MAX_FOOTPRINT	SZ_16K
+#define CONFIG_SPL_PAD_TO		0x6000	/* (CONFIG_SPL_MAX_FOOTPRINT + CONFIG_ENV_SIZE) */
 #define CONFIG_VAR_SIZE_SPL
 
 #define CONFIG_SPL_TEXT_BASE 		0xD0020010
 #define CONFIG_SPL_STACK		0xD0037D80
 
 #define CONFIG_POWER_HOLD
+
+/*
+ * bootloader(sd)
+ * |512|SPL(16k)|ENV(8k)|UBOOT(512k)|
+ */
+#define CONFIG_BL2_SD_BLOCK_OFFSET	49
+#define CONFIG_BL2_SD_BLOCK_SIZE	1024
 
 #endif	/* __CONFIG_H */

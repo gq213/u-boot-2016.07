@@ -18,9 +18,9 @@ void copy_bl2_to_ram(void)
 	uart_puts("copy bl2 to dram...\r\n");
 
 	if (sd_ch == 0xEB000000) {
-		ret = copy_bl2(0, 49, 1024, (unsigned int *)CONFIG_SYS_TEXT_BASE, 0);
+		ret = copy_bl2(0, CONFIG_BL2_SD_BLOCK_OFFSET, CONFIG_BL2_SD_BLOCK_SIZE, (unsigned int *)CONFIG_SYS_TEXT_BASE, 0);
 	} else if (sd_ch == 0xEB200000) {
-		ret = copy_bl2(2, 49, 1024, (unsigned int *)CONFIG_SYS_TEXT_BASE, 0);
+		ret = copy_bl2(2, CONFIG_BL2_SD_BLOCK_OFFSET, CONFIG_BL2_SD_BLOCK_SIZE, (unsigned int *)CONFIG_SYS_TEXT_BASE, 0);
 	} else {
 		uart_puts("sd_ch error!\r\n");
 		while(1);
