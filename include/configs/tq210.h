@@ -86,7 +86,7 @@
 		"tftpboot 20008000 uImage; " \
 		"bootm 20008000\0" \
 	"nfsboot=" \
-		"set bootargs noinitrd console=ttySAC0 root=/dev/nfs rw nfsroot=192.168.169.201:/home/work/nfs/rootfs,v3,nolock,tcp ip=dhcp init=/linuxrc coherent_pool=2M; " \
+		"set bootargs noinitrd console=ttySAC0 root=/dev/nfs rw nfsroot=192.168.2.200:/mnt/qiang/work/nfs/rootfs,v3,nolock,tcp ip=dhcp init=/linuxrc coherent_pool=2M; " \
 		"run bootk\0"
 
 #define CONFIG_ENV_SIZE		SZ_8K
@@ -147,9 +147,9 @@
 /*#define CONFIG_DM9000_DEBUG*/
 
 #define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_IPADDR		192.168.169.202
-#define CONFIG_SERVERIP		192.168.169.201
-#define CONFIG_GATEWAYIP	192.168.169.1
+#define CONFIG_IPADDR		192.168.2.100
+#define CONFIG_SERVERIP		192.168.2.200
+#define CONFIG_GATEWAYIP	192.168.2.1
 
 #define CONFIG_TQ210_IIC_PM_CHIP
 
