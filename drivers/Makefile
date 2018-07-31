@@ -13,7 +13,6 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_CRYPTO_SUPPORT) += crypto/
 obj-$(CONFIG_SPL_I2C_SUPPORT) += i2c/
 obj-$(CONFIG_SPL_GPIO_SUPPORT) += gpio/
-obj-$(CONFIG_SPL_MMC_SUPPORT) += mmc/
 obj-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += ddr/fsl/
 obj-$(CONFIG_ARMADA_38X) += ddr/marvell/a38x/
 obj-$(CONFIG_ARMADA_XP) += ddr/marvell/axp/
@@ -38,7 +37,6 @@ obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += usb/host/
 obj-$(CONFIG_OMAP_USB_PHY) += usb/phy/
 obj-$(CONFIG_SPL_SATA_SUPPORT) += block/
 obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += block/
-obj-$(CONFIG_SPL_MMC_SUPPORT) += block/
 
 else
 

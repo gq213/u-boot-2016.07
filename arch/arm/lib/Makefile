@@ -9,8 +9,6 @@ lib-$(CONFIG_USE_PRIVATE_LIBGCC) += ashldi3.o ashrdi3.o lshrdi3.o \
 				    lib1funcs.o uldivmod.o div0.o \
 				    div64.o muldi3.o
 
-ifndef CONFIG_SPL_BUILD
-
 ifdef CONFIG_CPU_V7M
 obj-y	+= vectors_m.o crt0.o
 else ifdef CONFIG_ARM64
@@ -58,10 +56,6 @@ obj-y	+= cache-cp15.o
 endif
 
 obj-$(CONFIG_DEBUG_LL)	+= debug.o
-
-else
-obj-y	+= vectors.o crt0.o
-endif
 
 # For EABI conformant tool chains, provide eabi_compat()
 ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))

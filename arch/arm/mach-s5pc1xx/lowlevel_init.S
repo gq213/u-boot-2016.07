@@ -2,18 +2,6 @@
 #include <asm/arch/power.h>
 
 
-#define ELFIN_TZPC0_BASE			0xF1500000
-#define ELFIN_TZPC1_BASE			0xFAD00000
-#define ELFIN_TZPC2_BASE			0xE0600000
-#define ELFIN_TZPC3_BASE			0xE1C00000
-
-/* Access Controller (TZPC) */
-#define TZPC_DECPROT0SET_OFFSET		0x804
-#define TZPC_DECPROT1SET_OFFSET		0x810
-#define TZPC_DECPROT2SET_OFFSET		0x81C
-#define TZPC_DECPROT3SET_OFFSET		0x828
-
-
 	.globl lowlevel_init
 lowlevel_init:
 	mov	r11, lr
@@ -92,6 +80,14 @@ lowlevel_init:
 	bic     r1, r1, #0x1
 	str     r1, [r0]
 
+	/*
+	 * Diable ABB block to reduce sleep current at low temperature
+	 * Note that it's hidden register setup don't modify it
+	 */
+	ldr	r0, =0xE010C300
+	ldr	r1, =0x00800000
+	str	r1, [r0]
+
 	/* IO Retention release */
 	ldr	r0, =S5PC110_OTHERS			@ 0xE010E000
 	ldr	r1, [r0]
@@ -104,51 +100,36 @@ lowlevel_init:
 	mov	r1, #0
 	str	r1, [r0]
 
-#if 1
+	/* S5PC110 has 3 groups of interrupt sources */
+	ldr	r0, =S5PC110_VIC0_BASE			@0xF2000000
+	ldr	r1, =S5PC110_VIC1_BASE			@0xF2100000
+	ldr	r2, =S5PC110_VIC2_BASE			@0xF2200000
+
+	/* Disable all interrupts (VIC0, VIC1 and VIC2) */
+	mvn	r3, #0x0
+	str	r3, [r0, #0x14]				@INTENCLEAR
+	str	r3, [r1, #0x14]				@INTENCLEAR
+	str	r3, [r2, #0x14]				@INTENCLEAR
+
+	mov	r5, #0
+	
+	/* Set all interrupts as IRQ */
+	str	r5, [r0, #0xc]				@INTSELECT
+	str	r5, [r1, #0xc]				@INTSELECT
+	str	r5, [r2, #0xc]				@INTSELECT
+
+	/* Pending Interrupt Clear */
+	str	r5, [r0, #0xf00]			@INTADDRESS
+	str	r5, [r1, #0xf00]			@INTADDRESS
+	str	r5, [r2, #0xf00]			@INTADDRESS
+
 	/* init system clock */
-	bl	clock_init
+	bl	system_clock_init
+
 	/* Memory initialize */
-	bl	ddr_init
-	/* for UART */
-	bl	uart_init
-#endif
+	bl	mem_ctrl_asm_init
 
 	bl	tzpc_init
 
-	/* ABB disable */
-	ldr	r0, =0xE010C300
-	orr	r1, r1, #(0x1<<23)
-	str	r1, [r0]
-
 	mov	lr, r11
 	mov	pc, lr
-
-/*
- * Setting TZPC[TrustZone Protection Controller]
- */
-tzpc_init:
-	ldr	r0, =ELFIN_TZPC0_BASE
- 	mov	r1, #0x0
- 	str	r1, [r0]
- 	mov	r1, #0xff
- 	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
- 	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET] 	
-
- 	ldr 	r0, =ELFIN_TZPC1_BASE
- 	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
- 	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET] 	
-
- 	ldr	r0, =ELFIN_TZPC2_BASE
- 	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
- 	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT3SET_OFFSET] 
-
- 	ldr	r0, =ELFIN_TZPC3_BASE
- 	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
- 	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET] 	
-
- 	mov	pc, lr

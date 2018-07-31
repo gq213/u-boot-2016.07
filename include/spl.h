@@ -85,7 +85,7 @@ int spl_onenand_load_image(void);
 int spl_nor_load_image(void);
 
 /* MMC SPL functions */
-int spl_mmc_load_image(u32 boot_device);
+int spl_mmc_load_image(void);
 
 /* YMODEM SPL functions */
 int spl_ymodem_load_image(void);
@@ -139,5 +139,9 @@ void spl_board_init(void);
  * @return true if U-Boot booted from SPL, else false
  */
 bool spl_was_boot_source(void);
+
+void uart_putc(char c);
+void uart_puts(char *s);
+void debug_reg(u32 value);
 
 #endif

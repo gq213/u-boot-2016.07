@@ -246,6 +246,8 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
+CROSS_COMPILE ?= arm-buildroot-linux-gnueabihf-
+
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 

@@ -82,35 +82,16 @@ ENTRY(_main)
 #else
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
 #endif
-#if ! defined(CONFIG_SPL_BUILD)
 	mov	r0, sp
 	bl	board_init_f_alloc_reserve
 	mov	sp, r0
 	/* set up gd here, outside any C code */
 	mov	r9, r0
 	bl	board_init_f_init_reserve
+
 	mov	r0, #0
 	bl	board_init_f
-#else
-	bl	c_runtime_cpu_setup	/* we still call old routine here */
 
-#if defined(CONFIG_POWER_HOLD)
-	/* PS_HOLD(GPJ2_5) set to output high */
-	ldr	r0, =0xE0200000
-	ldr	r1, =0x00100000
-	str	r1, [r0, #0x280]
-
-	ldr	r1, =0x0400
-	str	r1, [r0, #0x288]
-
-	ldr	r1, =0x20
-	str	r1, [r0, #0x284]
-#endif
-
-	bl	cpu_init_crit
-
-	bl	copy_bl2_to_ram
-#endif
 #if ! defined(CONFIG_SPL_BUILD)
 
 /*

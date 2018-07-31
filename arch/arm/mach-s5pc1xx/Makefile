@@ -14,7 +14,9 @@ obj-y	+= reset.o
 
 obj-y	+= clock.o
 else
-obj-y	= spl_boot.o
+obj-y	= s5pv210-board-spl.o
 obj-y	+= lowlevel_init.o
-obj-y	+= lowlevel_init_c.o
+obj-y	+= s5pv210_clock.o
+obj-y	+= s5pv210_ddr.o
+obj-y	+= s5pv210_tzpc.o
 endif

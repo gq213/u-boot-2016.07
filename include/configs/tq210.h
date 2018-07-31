@@ -153,9 +153,19 @@
 
 #define CONFIG_TQ210_IIC_PM_CHIP
 
+
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#endif
+
+
 /*
  * SPL Settings
  */
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_BOARD_INIT
+
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-s5pc1xx/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_FOOTPRINT	SZ_16K
 #define CONFIG_SPL_PAD_TO		0x6000	/* (CONFIG_SPL_MAX_FOOTPRINT + CONFIG_ENV_SIZE) */

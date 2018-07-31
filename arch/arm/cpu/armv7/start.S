@@ -64,8 +64,23 @@ save_boot_params_ret:
 #endif
 
 	/* the mask ROM code should have PLL and others stable */
-#if defined(CONFIG_SPL_BUILD)
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	bl	cpu_init_cp15
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
+#if defined(CONFIG_POWER_HOLD)
+	/* PS_HOLD(GPJ2_5) set to output high */
+	ldr	r0, =0xE0200000
+	ldr	r1, =0x00100000
+	str	r1, [r0, #0x280]
+
+	ldr	r1, =0x0400
+	str	r1, [r0, #0x288]
+
+	ldr	r1, =0x20
+	str	r1, [r0, #0x284]
+#endif
+	bl	cpu_init_crit
+#endif
 #endif
 
 	bl	_main
@@ -100,7 +115,6 @@ ENTRY(save_boot_params)
 ENDPROC(save_boot_params)
 	.weak	save_boot_params
 
-#if defined(CONFIG_SPL_BUILD)
 /*************************************************************************
  *
  * cpu_init_cp15
@@ -250,6 +264,8 @@ skip_errata_621766:
 	mov	pc, r5			@ back to my caller
 ENDPROC(cpu_init_cp15)
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && \
+	!defined(CONFIG_SKIP_LOWLEVEL_INIT_ONLY)
 /*************************************************************************
  *
  * CPU_init_critical registers
