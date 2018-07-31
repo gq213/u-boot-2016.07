@@ -13,6 +13,7 @@
 #include <asm/arch/sromc.h>
 #include <netdev.h>
 #include <asm/gpio.h>
+#include "pmic.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,6 +48,15 @@ int board_init(void)
 
 #ifdef CONFIG_DRIVER_DM9000
 	dm9000_pre_init();
+#endif
+
+	return 0;
+}
+
+int power_init_board(void)
+{
+#ifdef CONFIG_TQ210_IIC_PM_CHIP
+	PMIC_InitIp();
 #endif
 
 	return 0;

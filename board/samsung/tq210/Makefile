@@ -10,4 +10,5 @@
 
 ifndef CONFIG_SPL_BUILD
 obj-y	:= tq210.o
+obj-$(CONFIG_TQ210_IIC_PM_CHIP)	+= pmic.o
 endif
