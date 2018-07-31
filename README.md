@@ -2,17 +2,11 @@
 for mc210/tq210
 
 make distclean
-make mc210_defconfig
-or
-make tq210_defconfig
-make CROSS_COMPILE=arm-buildroot-linux-gnueabihf- V=1
-make CROSS_COMPILE=arm-buildroot-linux-gnueabihf- spl/u-boot-spl.bin
+make mc210_defconfig/tq210_defconfig
+make
 
-fdisk -l
-dd bs=512 seek=1 if=/dev/zero of=/dev/sdc count=2047
-dd iflag=dsync oflag=dsync if=spl/mc210-spl.bin of=/dev/sdc seek=1
-or
-dd iflag=dsync oflag=dsync if=spl/tq210-spl.bin of=/dev/sdc seek=1
-dd iflag=dsync oflag=dsync if=u-boot.bin of=/dev/sdc seek=49
+sudo fdisk -l
+sudo dd bs=512 seek=1 if=/dev/zero of=/dev/sde count=2047
+sudo dd bs=512 seek=1 iflag=dsync oflag=dsync if=u-boot-with-spl.bin of=/dev/sde
 
 mmc erase 0x21 0x10
