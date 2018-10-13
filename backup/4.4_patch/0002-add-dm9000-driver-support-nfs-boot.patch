@@ -1,0 +1,163 @@
+From 08f1884787f30937d6747296d3b8040728df29d7 Mon Sep 17 00:00:00 2001
+From: gq213 <gaoqiang1211@gmail.com>
+Date: Sun, 16 Sep 2018 23:19:04 +0800
+Subject: [PATCH 2/7] add dm9000 driver, support nfs boot.
+
+---
+ arch/arm/boot/dts/s5pv210-pinctrl.dtsi |  7 +++++++
+ arch/arm/boot/dts/s5pv210-tq210.dts    | 11 +++++++++++
+ arch/arm/boot/dts/s5pv210.dtsi         |  1 +
+ arch/arm/configs/tq210_defconfig       | 36 ++++++++++++++++++++++++++++++++++
+ drivers/net/ethernet/davicom/dm9000.c  | 14 +++++++++++++
+ 5 files changed, 69 insertions(+)
+
+diff --git a/arch/arm/boot/dts/s5pv210-pinctrl.dtsi b/arch/arm/boot/dts/s5pv210-pinctrl.dtsi
+index 8c71408..7f9c93a 100644
+--- a/arch/arm/boot/dts/s5pv210-pinctrl.dtsi
++++ b/arch/arm/boot/dts/s5pv210-pinctrl.dtsi
+@@ -737,6 +737,13 @@
+ 		samsung,pin-drv = <0>;
+ 	};
+ 
++	eint10: ext-int10 {
++		samsung,pins = "gph1-2";
++		samsung,pin-function = <0xf>;
++		samsung,pin-pud = <0>;
++		samsung,pin-drv = <0>;
++	};
++
+ 	eint15: ext-int15 {
+ 		samsung,pins = "gph1-7";
+ 		samsung,pin-function = <0xf>;
+diff --git a/arch/arm/boot/dts/s5pv210-tq210.dts b/arch/arm/boot/dts/s5pv210-tq210.dts
+index 4094a89..1cf84e6 100644
+--- a/arch/arm/boot/dts/s5pv210-tq210.dts
++++ b/arch/arm/boot/dts/s5pv210-tq210.dts
+@@ -13,6 +13,17 @@
+ / {
+ 	model = "Embedsky TQ210v4 based on S5PV210";
+ 	compatible = "embedsky,tq210v4", "samsung,s5pv210";
++
++	ethernet@88000000 {
++		compatible = "davicom,dm9000";
++		reg = <0x88000000 0x2 0x88000004 0x2>;
++		interrupt-parent = <&gph1>;
++		interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
++		local-mac-address = [00 00 de ad be ef];
++		davicom,no-eeprom;
++		clocks = <&clocks CLK_SROMC>;
++		clock-names = "sromc";
++	};
+ };
+ 
+ &xxti {
+diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
+index 8344a0e..5da97ed 100644
+--- a/arch/arm/boot/dts/s5pv210.dtsi
++++ b/arch/arm/boot/dts/s5pv210.dtsi
+@@ -22,6 +22,7 @@
+ #include "skeleton.dtsi"
+ #include <dt-bindings/clock/s5pv210.h>
+ #include <dt-bindings/clock/s5pv210-audss.h>
++#include <dt-bindings/interrupt-controller/irq.h>
+ 
+ / {
+ 	aliases {
+diff --git a/arch/arm/configs/tq210_defconfig b/arch/arm/configs/tq210_defconfig
+index c3387a2..433eb1c 100644
+--- a/arch/arm/configs/tq210_defconfig
++++ b/arch/arm/configs/tq210_defconfig
+@@ -15,8 +15,41 @@ CONFIG_AEABI=y
+ CONFIG_VFP=y
+ CONFIG_NEON=y
+ 
++CONFIG_NET=y
++CONFIG_PACKET=y
++CONFIG_UNIX=y
++CONFIG_INET=y
++CONFIG_IP_PNP=y
++CONFIG_IP_PNP_DHCP=y
++# CONFIG_IPV6 is not set
++
+ CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
+ 
++CONFIG_NETDEVICES=y
++# CONFIG_NET_VENDOR_ARC is not set
++# CONFIG_NET_CADENCE is not set
++# CONFIG_NET_VENDOR_BROADCOM is not set
++# CONFIG_NET_VENDOR_CIRRUS is not set
++CONFIG_DM9000=y
++# CONFIG_NET_VENDOR_EZCHIP is not set
++# CONFIG_NET_VENDOR_FARADAY is not set
++# CONFIG_NET_VENDOR_HISILICON is not set
++# CONFIG_NET_VENDOR_INTEL is not set
++# CONFIG_NET_VENDOR_MARVELL is not set
++# CONFIG_NET_VENDOR_MICREL is not set
++# CONFIG_NET_VENDOR_NATSEMI is not set
++# CONFIG_NET_VENDOR_NETRONOME is not set
++# CONFIG_NET_VENDOR_QUALCOMM is not set
++# CONFIG_NET_VENDOR_RENESAS is not set
++# CONFIG_NET_VENDOR_ROCKER is not set
++# CONFIG_NET_VENDOR_SAMSUNG is not set
++# CONFIG_NET_VENDOR_SEEQ is not set
++# CONFIG_NET_VENDOR_SMSC is not set
++# CONFIG_NET_VENDOR_STMICRO is not set
++# CONFIG_NET_VENDOR_SYNOPSYS is not set
++# CONFIG_NET_VENDOR_VIA is not set
++# CONFIG_NET_VENDOR_WIZNET is not set
++
+ # CONFIG_INPUT_MOUSEDEV is not set
+ # CONFIG_INPUT_KEYBOARD is not set
+ # CONFIG_INPUT_MOUSE is not set
+@@ -38,6 +71,9 @@ CONFIG_HW_RANDOM=y
+ CONFIG_TMPFS=y
+ CONFIG_TMPFS_POSIX_ACL=y
+ 
++CONFIG_NFS_FS=y
++CONFIG_ROOT_NFS=y
++
+ CONFIG_PRINTK_TIME=y
+ CONFIG_DEBUG_INFO=y
+ CONFIG_MAGIC_SYSRQ=y
+diff --git a/drivers/net/ethernet/davicom/dm9000.c b/drivers/net/ethernet/davicom/dm9000.c
+index cf94b72..81bc0e2 100644
+--- a/drivers/net/ethernet/davicom/dm9000.c
++++ b/drivers/net/ethernet/davicom/dm9000.c
+@@ -39,6 +39,7 @@
+ #include <linux/regulator/consumer.h>
+ #include <linux/gpio.h>
+ #include <linux/of_gpio.h>
++#include <linux/clk.h>
+ 
+ #include <asm/delay.h>
+ #include <asm/irq.h>
+@@ -1438,6 +1439,7 @@ dm9000_probe(struct platform_device *pdev)
+ 	int reset_gpios;
+ 	enum of_gpio_flags flags;
+ 	struct regulator *power;
++	const char *clk_name;
+ 
+ 	power = devm_regulator_get(dev, "vcc");
+ 	if (IS_ERR(power)) {
+@@ -1572,6 +1574,18 @@ dm9000_probe(struct platform_device *pdev)
+ 	ndev->base_addr = (unsigned long)db->io_addr;
+ 	ndev->irq	= db->irq_res->start;
+ 
++	/* Enable clock if specified */
++	if (!of_property_read_string(dev->of_node, "clock-names", &clk_name)) {
++		struct clk *clk = devm_clk_get(dev, clk_name);
++		if (IS_ERR(clk)) {
++			dev_err(dev, "cannot get clock of %s\n", clk_name);
++			ret = PTR_ERR(clk);
++			goto out;
++		}
++
++		clk_prepare_enable(clk);
++	}
++
+ 	/* ensure at least we have a default set of IO routines */
+ 	dm9000_set_io(db, iosize);
+ 
+-- 
+2.7.4
+

@@ -1,0 +1,65 @@
+From ea7015d03cf6a82996f006857b9a942eaabb36b3 Mon Sep 17 00:00:00 2001
+From: gq213 <gaoqiang1211@gmail.com>
+Date: Sun, 16 Sep 2018 23:50:37 +0800
+Subject: [PATCH 5/7] add backlight driver.
+
+---
+ arch/arm/boot/dts/s5pv210-tq210.dts | 13 +++++++++++++
+ arch/arm/configs/tq210_defconfig    |  6 ++++++
+ 2 files changed, 19 insertions(+)
+
+diff --git a/arch/arm/boot/dts/s5pv210-tq210.dts b/arch/arm/boot/dts/s5pv210-tq210.dts
+index 6aee46c..2bbac3c 100644
+--- a/arch/arm/boot/dts/s5pv210-tq210.dts
++++ b/arch/arm/boot/dts/s5pv210-tq210.dts
+@@ -24,6 +24,15 @@
+ 		clocks = <&clocks CLK_SROMC>;
+ 		clock-names = "sromc";
+ 	};
++
++	backlight {
++		compatible = "pwm-backlight";
++		pwms = <&pwm 0 50000 0>;
++		brightness-levels = <0 64 68 72 80 88 96 112 128 192 255>;
++		default-brightness-level = <6>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&pwm0_out>;
++	};
+ };
+ 
+ &xxti {
+@@ -64,3 +73,7 @@
+ &ehci {
+ 	status = "okay";
+ };
++
++&pwm {
++	samsung,pwm-outputs = <0>;
++};
+diff --git a/arch/arm/configs/tq210_defconfig b/arch/arm/configs/tq210_defconfig
+index d6d63d0..2614ee4 100644
+--- a/arch/arm/configs/tq210_defconfig
++++ b/arch/arm/configs/tq210_defconfig
+@@ -65,6 +65,9 @@ CONFIG_HW_RANDOM=y
+ 
+ # CONFIG_HWMON is not set
+ 
++CONFIG_BACKLIGHT_LCD_SUPPORT=y
++CONFIG_BACKLIGHT_PWM=y
++
+ # CONFIG_HID is not set
+ 
+ CONFIG_USB_SUPPORT=y
+@@ -79,6 +82,9 @@ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_S3C=y
+ CONFIG_MMC_SDHCI_S3C_DMA=y
+ 
++CONFIG_PWM=y
++CONFIG_PWM_SAMSUNG=y
++
+ # CONFIG_PHY_EXYNOS_MIPI_VIDEO is not set
+ CONFIG_PHY_SAMSUNG_USB2=y
+ CONFIG_PHY_S5PV210_USB2=y
+-- 
+2.7.4
+

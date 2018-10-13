@@ -1,0 +1,39 @@
+From 956baed999b471be07f8fa5539679daebd44479f Mon Sep 17 00:00:00 2001
+From: gq213 <gaoqiang1211@gmail.com>
+Date: Sat, 18 Aug 2018 20:06:39 +0800
+Subject: [PATCH 07/12] set default UIMAGE_LOADADDR=0x20008000
+
+---
+ README.md              | 2 +-
+ arch/arm/boot/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/README.md b/README.md
+index 4ee5c6a..11bff0d 100644
+--- a/README.md
++++ b/README.md
+@@ -2,7 +2,7 @@
+ for tq210
+ 
+ make tq210_defconfig
+-make LOADADDR=0x20008000 uImage
++make uImage
+ make dtbs/s5pv210-tq210.dtb
+ 
+ tftpboot 20008000 uImage; tftpboot 20508000 s5pv210-tq210.dtb; bootm 20008000 - 20508000
+diff --git a/arch/arm/boot/Makefile b/arch/arm/boot/Makefile
+index da75630..e268967 100644
+--- a/arch/arm/boot/Makefile
++++ b/arch/arm/boot/Makefile
+@@ -76,7 +76,7 @@ else
+   ifeq ($(CONFIG_ZBOOT_ROM),y)
+     UIMAGE_LOADADDR=$(CONFIG_ZBOOT_ROM_TEXT)
+   else
+-    UIMAGE_LOADADDR=$(ZRELADDR)
++    UIMAGE_LOADADDR=0x20008000
+   endif
+ endif
+ 
+-- 
+2.7.4
+

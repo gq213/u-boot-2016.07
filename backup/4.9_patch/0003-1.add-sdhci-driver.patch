@@ -1,0 +1,75 @@
+From 94e28f14f18f08eec1c203f782a1d5ca4cc81ab9 Mon Sep 17 00:00:00 2001
+From: gq213 <gaoqiang1211@gmail.com>
+Date: Wed, 8 Aug 2018 22:27:37 +0800
+Subject: [PATCH 03/12] 1.add sdhci driver. 2.add ext4/fat file systems and
+ nls.
+
+---
+ arch/arm/boot/dts/s5pv210-tq210.dts |  7 +++++++
+ arch/arm/configs/tq210_defconfig    | 12 ++++++++++++
+ drivers/mmc/host/sdhci.c            |  2 +-
+ 3 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/s5pv210-tq210.dts b/arch/arm/boot/dts/s5pv210-tq210.dts
+index 1c398e4..2d32067 100644
+--- a/arch/arm/boot/dts/s5pv210-tq210.dts
++++ b/arch/arm/boot/dts/s5pv210-tq210.dts
+@@ -57,3 +57,10 @@
+ &uart3 {
+ 	status = "okay";
+ };
++
++&sdhci0 {
++	bus-width = <4>;
++	pinctrl-0 = <&sd0_clk &sd0_cmd &sd0_cd &sd0_bus4>;
++	pinctrl-names = "default";
++	status = "okay";
++};
+\ No newline at end of file
+diff --git a/arch/arm/configs/tq210_defconfig b/arch/arm/configs/tq210_defconfig
+index 3c7cec4..f9bacae 100644
+--- a/arch/arm/configs/tq210_defconfig
++++ b/arch/arm/configs/tq210_defconfig
+@@ -67,14 +67,26 @@ CONFIG_HW_RANDOM=y
+ 
+ # CONFIG_USB_SUPPORT is not set
+ 
++CONFIG_MMC=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_S3C=y
++CONFIG_MMC_SDHCI_S3C_DMA=y
++
+ # CONFIG_PHY_EXYNOS_MIPI_VIDEO is not set
+ 
++CONFIG_EXT4_FS=y
++CONFIG_MSDOS_FS=y
++CONFIG_VFAT_FS=y
++
+ CONFIG_TMPFS=y
+ CONFIG_TMPFS_POSIX_ACL=y
+ 
+ CONFIG_NFS_FS=y
+ CONFIG_ROOT_NFS=y
+ 
++CONFIG_NLS_CODEPAGE_437=y
++CONFIG_NLS_ISO8859_1=y
++
+ CONFIG_PRINTK_TIME=y
+ CONFIG_DEBUG_INFO=y
+ CONFIG_MAGIC_SYSRQ=y
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index 7d275e7..fdf69f5 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -1415,7 +1415,7 @@ void sdhci_set_power_noreg(struct sdhci_host *host, unsigned char mode,
+ 			pwr = SDHCI_POWER_330;
+ 			break;
+ 		default:
+-			WARN(1, "%s: Invalid vdd %#x\n",
++			printk("%s %s: Invalid vdd %#x\n", __func__, 
+ 			     mmc_hostname(host->mmc), vdd);
+ 			break;
+ 		}
+-- 
+2.7.4
+

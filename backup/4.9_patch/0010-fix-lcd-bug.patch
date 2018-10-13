@@ -1,0 +1,38 @@
+From 0fc4dc06cfc96486c46195ae87c4f4283f0bef66 Mon Sep 17 00:00:00 2001
+From: gq213 <gaoqiang1211@gmail.com>
+Date: Sun, 19 Aug 2018 13:17:11 +0800
+Subject: [PATCH 10/12] fix lcd bug.
+
+---
+ arch/arm/configs/tq210_defconfig | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/configs/tq210_defconfig b/arch/arm/configs/tq210_defconfig
+index 37ce364..02ccad1 100644
+--- a/arch/arm/configs/tq210_defconfig
++++ b/arch/arm/configs/tq210_defconfig
+@@ -226,8 +226,7 @@ CONFIG_INPUT_KEYCHORD=y
+ CONFIG_INPUT_UINPUT=y
+ CONFIG_INPUT_GPIO=y
+ 
+-# CONFIG_VT is not set
+-# CONFIG_LEGACY_PTYS is not set
++CONFIG_LEGACY_PTY_COUNT=32
+ # CONFIG_DEVKMEM is not set
+ # CONFIG_DEVMEM is not set
+ CONFIG_SERIAL_8250=y
+@@ -248,7 +247,11 @@ CONFIG_DRM_EXYNOS_FIMD=y
+ CONFIG_DRM_EXYNOS_DPI=y
+ # CONFIG_DRM_EXYNOS_DP is not set
+ CONFIG_BACKLIGHT_LCD_SUPPORT=y
++CONFIG_LCD_CLASS_DEVICE=y
++CONFIG_BACKLIGHT_CLASS_DEVICE=y
++CONFIG_BACKLIGHT_GENERIC=y
+ CONFIG_BACKLIGHT_PWM=y
++CONFIG_FRAMEBUFFER_CONSOLE=y
+ CONFIG_LOGO=y
+ 
+ CONFIG_SOUND=y
+-- 
+2.7.4
+

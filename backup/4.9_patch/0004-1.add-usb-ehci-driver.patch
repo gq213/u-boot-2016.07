@@ -1,0 +1,155 @@
+From a5f222fb4b9d2c76716fb165ffa3c5fd6f619080 Mon Sep 17 00:00:00 2001
+From: gq213 <gaoqiang1211@gmail.com>
+Date: Wed, 8 Aug 2018 22:48:07 +0800
+Subject: [PATCH 04/12] 1.add usb-ehci driver. 2.support usb storage.
+
+---
+ arch/arm/boot/dts/s5pv210-tq210.dts |  8 ++++++++
+ arch/arm/boot/dts/s5pv210.dtsi      |  1 +
+ arch/arm/configs/tq210_defconfig    | 12 +++++++++++-
+ drivers/phy/phy-s5pv210-usb2.c      | 15 ++++++++++++---
+ drivers/usb/host/ehci-exynos.c      |  8 ++++----
+ 5 files changed, 36 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/boot/dts/s5pv210-tq210.dts b/arch/arm/boot/dts/s5pv210-tq210.dts
+index 2d32067..118d876 100644
+--- a/arch/arm/boot/dts/s5pv210-tq210.dts
++++ b/arch/arm/boot/dts/s5pv210-tq210.dts
+@@ -63,4 +63,12 @@
+ 	pinctrl-0 = <&sd0_clk &sd0_cmd &sd0_cd &sd0_bus4>;
+ 	pinctrl-names = "default";
+ 	status = "okay";
++};
++
++&usbphy {
++	status = "okay";
++};
++
++&ehci {
++	status = "okay";
+ };
+\ No newline at end of file
+diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
+index 026729f..eea552f 100644
+--- a/arch/arm/boot/dts/s5pv210.dtsi
++++ b/arch/arm/boot/dts/s5pv210.dtsi
+@@ -464,6 +464,7 @@
+ 			compatible = "samsung,exynos4210-ohci";
+ 			reg = <0xec300000 0x100>;
+ 			interrupts = <23>;
++			interrupt-parent = <&vic1>;
+ 			clocks = <&clocks CLK_USB_HOST>;
+ 			clock-names = "usbhost";
+ 			#address-cells = <1>;
+diff --git a/arch/arm/configs/tq210_defconfig b/arch/arm/configs/tq210_defconfig
+index f9bacae..0809f3d 100644
+--- a/arch/arm/configs/tq210_defconfig
++++ b/arch/arm/configs/tq210_defconfig
+@@ -25,6 +25,9 @@ CONFIG_IP_PNP_DHCP=y
+ 
+ CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
+ 
++CONFIG_SCSI=y
++CONFIG_BLK_DEV_SD=y
++
+ CONFIG_NETDEVICES=y
+ # CONFIG_NET_VENDOR_AMAZON is not set
+ # CONFIG_NET_VENDOR_ARC is not set
+@@ -65,7 +68,12 @@ CONFIG_HW_RANDOM=y
+ 
+ # CONFIG_HID is not set
+ 
+-# CONFIG_USB_SUPPORT is not set
++CONFIG_USB_SUPPORT=y
++CONFIG_USB=y
++CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_EHCI_EXYNOS=y
++CONFIG_USB_STORAGE=y
+ 
+ CONFIG_MMC=y
+ CONFIG_MMC_SDHCI=y
+@@ -73,6 +81,8 @@ CONFIG_MMC_SDHCI_S3C=y
+ CONFIG_MMC_SDHCI_S3C_DMA=y
+ 
+ # CONFIG_PHY_EXYNOS_MIPI_VIDEO is not set
++CONFIG_PHY_SAMSUNG_USB2=y
++CONFIG_PHY_S5PV210_USB2=y
+ 
+ CONFIG_EXT4_FS=y
+ CONFIG_MSDOS_FS=y
+diff --git a/drivers/phy/phy-s5pv210-usb2.c b/drivers/phy/phy-s5pv210-usb2.c
+index 004d320..ec84a86 100644
+--- a/drivers/phy/phy-s5pv210-usb2.c
++++ b/drivers/phy/phy-s5pv210-usb2.c
+@@ -72,6 +72,8 @@ enum s5pv210_phy_id {
+  */
+ static int s5pv210_rate_to_clk(unsigned long rate, u32 *reg)
+ {
++	//printk("%s: rate=%lu\n", __func__, rate);
++	
+ 	switch (rate) {
+ 	case 12 * MHZ:
+ 		*reg = S5PV210_UPHYCLK_PHYFSEL_12MHZ;
+@@ -114,6 +116,7 @@ static void s5pv210_phy_pwr(struct samsung_usb2_phy_instance *inst, bool on)
+ 	struct samsung_usb2_phy_driver *drv = inst->drv;
+ 	u32 rstbits = 0;
+ 	u32 phypwr = 0;
++	u32 clk = 0;
+ 	u32 rst;
+ 	u32 pwr;
+ 
+@@ -126,22 +129,28 @@ static void s5pv210_phy_pwr(struct samsung_usb2_phy_instance *inst, bool on)
+ 		phypwr =	S5PV210_UPHYPWR_PHY1;
+ 		rstbits =	S5PV210_URSTCON_PHY1_ALL |
+ 				S5PV210_URSTCON_HOST_LINK_ALL;
++		clk = readl(drv->reg_phy + S5PV210_UPHYCLK);
++		clk &= ~S5PV210_UPHYCLK_PHY1_COMMON_ON;
++		clk &= ~S5PV210_UPHYCLK_PHYFSEL_MASK;
+ 		break;
+ 	};
+ 
+ 	if (on) {
+-		writel(drv->ref_reg_val, drv->reg_phy + S5PV210_UPHYCLK);
+-
+ 		pwr = readl(drv->reg_phy + S5PV210_UPHYPWR);
+ 		pwr &= ~phypwr;
++		pwr |= BIT(5) | BIT(8);
+ 		writel(pwr, drv->reg_phy + S5PV210_UPHYPWR);
++		
++		clk |= drv->ref_reg_val;
++		writel(clk, drv->reg_phy + S5PV210_UPHYCLK);
+ 
+ 		rst = readl(drv->reg_phy + S5PV210_UPHYRST);
+ 		rst |= rstbits;
+ 		writel(rst, drv->reg_phy + S5PV210_UPHYRST);
+-		udelay(10);
++		udelay(80);
+ 		rst &= ~rstbits;
+ 		writel(rst, drv->reg_phy + S5PV210_UPHYRST);
++		udelay(80);
+ 	} else {
+ 		pwr = readl(drv->reg_phy + S5PV210_UPHYPWR);
+ 		pwr |= phypwr;
+diff --git a/drivers/usb/host/ehci-exynos.c b/drivers/usb/host/ehci-exynos.c
+index 7a603f6..4745e8e 100644
+--- a/drivers/usb/host/ehci-exynos.c
++++ b/drivers/usb/host/ehci-exynos.c
+@@ -29,10 +29,10 @@
+ #define DRIVER_DESC "EHCI EXYNOS driver"
+ 
+ #define EHCI_INSNREG00(base)			(base + 0x90)
+-#define EHCI_INSNREG00_ENA_INCR16		(0x1 << 25)
+-#define EHCI_INSNREG00_ENA_INCR8		(0x1 << 24)
+-#define EHCI_INSNREG00_ENA_INCR4		(0x1 << 23)
+-#define EHCI_INSNREG00_ENA_INCRX_ALIGN		(0x1 << 22)
++#define EHCI_INSNREG00_ENA_INCR16		(0x1 << 19)
++#define EHCI_INSNREG00_ENA_INCR8		(0x1 << 18)
++#define EHCI_INSNREG00_ENA_INCR4		(0x1 << 17)
++#define EHCI_INSNREG00_ENA_INCRX_ALIGN		(0x1 << 16)
+ #define EHCI_INSNREG00_ENABLE_DMA_BURST	\
+ 	(EHCI_INSNREG00_ENA_INCR16 | EHCI_INSNREG00_ENA_INCR8 |	\
+ 	 EHCI_INSNREG00_ENA_INCR4 | EHCI_INSNREG00_ENA_INCRX_ALIGN)
+-- 
+2.7.4
+

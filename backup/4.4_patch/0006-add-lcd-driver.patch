@@ -1,0 +1,147 @@
+From a270d3e1509de62dc38c05b44ba86076579ad190 Mon Sep 17 00:00:00 2001
+From: gq213 <gaoqiang1211@gmail.com>
+Date: Mon, 17 Sep 2018 00:15:18 +0800
+Subject: [PATCH 6/7] add lcd driver.
+
+---
+ arch/arm/boot/dts/s5pv210-tq210.dts      | 26 ++++++++++++++++++++++++++
+ arch/arm/boot/dts/s5pv210.dtsi           |  4 ++--
+ arch/arm/configs/tq210_defconfig         | 10 ++++++++++
+ drivers/gpu/drm/exynos/exynos_drm_fimd.c | 20 ++++++++++++++++++++
+ 4 files changed, 58 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/s5pv210-tq210.dts b/arch/arm/boot/dts/s5pv210-tq210.dts
+index 2bbac3c..9898798 100644
+--- a/arch/arm/boot/dts/s5pv210-tq210.dts
++++ b/arch/arm/boot/dts/s5pv210-tq210.dts
+@@ -77,3 +77,29 @@
+ &pwm {
+ 	samsung,pwm-outputs = <0>;
+ };
++
++&fimd {
++	pinctrl-0 = <&lcd_clk &lcd_data24>;
++	pinctrl-names = "default";
++	status = "okay";
++	
++	samsung,invert-hsync;
++	samsung,invert-vsync;
++	
++	display-timings {
++		native-mode = <&timing0>;
++
++		timing0: timing {
++			/* 800x480@60Hz */
++			clock-frequency = <32500000>;
++			hactive = <800>;
++			vactive = <480>;
++			hfront-porch = <210>;
++			hsync-len = <20>;
++			hback-porch = <26>;
++			vfront-porch = <22>;
++			vsync-len = <10>;
++			vback-porch = <13>;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
+index 7d28017..1c7a73b 100644
+--- a/arch/arm/boot/dts/s5pv210.dtsi
++++ b/arch/arm/boot/dts/s5pv210.dtsi
+@@ -513,9 +513,9 @@
+ 		};
+ 
+ 		fimd: fimd@f8000000 {
+-			compatible = "samsung,exynos4210-fimd";
++			compatible = "samsung,s5pv210-fimd";
+ 			interrupt-parent = <&vic2>;
+-			reg = <0xf8000000 0x20000>;
++			reg = <0xf8000000 0x100000>;
+ 			interrupt-names = "fifo", "vsync", "lcd_sys";
+ 			interrupts = <0>, <1>, <2>;
+ 			clocks = <&clocks SCLK_FIMD>, <&clocks CLK_FIMD>;
+diff --git a/arch/arm/configs/tq210_defconfig b/arch/arm/configs/tq210_defconfig
+index 2614ee4..80d8eb2 100644
+--- a/arch/arm/configs/tq210_defconfig
++++ b/arch/arm/configs/tq210_defconfig
+@@ -65,8 +65,18 @@ CONFIG_HW_RANDOM=y
+ 
+ # CONFIG_HWMON is not set
+ 
++CONFIG_DRM=y
++CONFIG_DRM_EXYNOS=y
++CONFIG_DRM_EXYNOS_FIMD=y
++CONFIG_DRM_EXYNOS_DPI=y
++# CONFIG_DRM_EXYNOS_DP is not set
+ CONFIG_BACKLIGHT_LCD_SUPPORT=y
++CONFIG_LCD_CLASS_DEVICE=y
++CONFIG_BACKLIGHT_CLASS_DEVICE=y
++CONFIG_BACKLIGHT_GENERIC=y
+ CONFIG_BACKLIGHT_PWM=y
++CONFIG_FRAMEBUFFER_CONSOLE=y
++CONFIG_LOGO=y
+ 
+ # CONFIG_HID is not set
+ 
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_fimd.c b/drivers/gpu/drm/exynos/exynos_drm_fimd.c
+index bd75c15..b8abd6f 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_fimd.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_fimd.c
+@@ -108,6 +108,12 @@ static struct fimd_driver_data s3c64xx_fimd_driver_data = {
+ 	.has_limited_fmt = 1,
+ };
+ 
++static struct fimd_driver_data s5pv210_fimd_driver_data = {
++	.timing_base = 0x0,
++	.has_shadowcon = 1,
++	.has_clksel = 1,
++};
++
+ static struct fimd_driver_data exynos3_fimd_driver_data = {
+ 	.timing_base = 0x20000,
+ 	.lcdblk_offset = 0x210,
+@@ -175,6 +181,8 @@ struct fimd_context {
+ static const struct of_device_id fimd_driver_dt_match[] = {
+ 	{ .compatible = "samsung,s3c6400-fimd",
+ 	  .data = &s3c64xx_fimd_driver_data },
++	{ .compatible = "samsung,s5pv210-fimd",
++	  .data = &s5pv210_fimd_driver_data },
+ 	{ .compatible = "samsung,exynos3250-fimd",
+ 	  .data = &exynos3_fimd_driver_data },
+ 	{ .compatible = "samsung,exynos4210-fimd",
+@@ -1002,6 +1010,7 @@ static int fimd_probe(struct platform_device *pdev)
+ 	struct device_node *i80_if_timings;
+ 	struct resource *res;
+ 	int ret;
++	void __iomem *disp_path_reg;
+ 
+ 	if (!dev->of_node)
+ 		return -ENODEV;
+@@ -1018,6 +1027,10 @@ static int fimd_probe(struct platform_device *pdev)
+ 		ctx->vidcon1 |= VIDCON1_INV_VDEN;
+ 	if (of_property_read_bool(dev->of_node, "samsung,invert-vclk"))
+ 		ctx->vidcon1 |= VIDCON1_INV_VCLK;
++	if (of_property_read_bool(dev->of_node, "samsung,invert-hsync"))
++		ctx->vidcon1 |= VIDCON1_INV_HSYNC;
++	if (of_property_read_bool(dev->of_node, "samsung,invert-vsync"))
++		ctx->vidcon1 |= VIDCON1_INV_VSYNC;
+ 
+ 	i80_if_timings = of_get_child_by_name(dev->of_node, "i80-if-timings");
+ 	if (i80_if_timings) {
+@@ -1075,6 +1088,13 @@ static int fimd_probe(struct platform_device *pdev)
+ 	if (IS_ERR(ctx->regs))
+ 		return PTR_ERR(ctx->regs);
+ 
++	disp_path_reg = ioremap(0xe0107008, 0x4);
++	if (IS_ERR(disp_path_reg))
++		return PTR_ERR(disp_path_reg);
++	
++	writel(0x2, disp_path_reg);
++	iounmap(disp_path_reg);
++
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_IRQ,
+ 					   ctx->i80_if ? "lcd_sys" : "vsync");
+ 	if (!res) {
+-- 
+2.7.4
+

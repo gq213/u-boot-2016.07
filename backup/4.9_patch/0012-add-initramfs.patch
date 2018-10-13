@@ -1,0 +1,46 @@
+From bb9b0e5702e0ba24dc11f2c66e9173a81b8a89d5 Mon Sep 17 00:00:00 2001
+From: gq213 <gaoqiang1211@gmail.com>
+Date: Sun, 16 Sep 2018 21:25:44 +0800
+Subject: [PATCH 12/12] add initramfs.
+
+---
+ README.md                        | 4 ++--
+ arch/arm/configs/tq210_defconfig | 3 ++-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/README.md b/README.md
+index 11bff0d..deb6305 100644
+--- a/README.md
++++ b/README.md
+@@ -5,7 +5,7 @@ make tq210_defconfig
+ make uImage
+ make dtbs/s5pv210-tq210.dtb
+ 
+-tftpboot 20008000 uImage; tftpboot 20508000 s5pv210-tq210.dtb; bootm 20008000 - 20508000
++tftpboot 20008000 uImage; tftpboot 20808000 s5pv210-tq210.dtb; bootm 20008000 - 20808000
+ 
+-fdt addr 20508000
++fdt addr 20808000
+ fdt print
+diff --git a/arch/arm/configs/tq210_defconfig b/arch/arm/configs/tq210_defconfig
+index 35d4ecd..3423fe1 100644
+--- a/arch/arm/configs/tq210_defconfig
++++ b/arch/arm/configs/tq210_defconfig
+@@ -19,6 +19,7 @@ CONFIG_CGROUP_BPF=y
+ CONFIG_SYSFS_DEPRECATED=y
+ CONFIG_SYSFS_DEPRECATED_V2=y
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE="/mnt/qiang/cross/aosp_out/aosp_source/target/product/myphone/initramfs.cpio.gz"
+ CONFIG_KALLSYMS_ALL=y
+ CONFIG_BPF_SYSCALL=y
+ # CONFIG_AIO is not set
+@@ -419,4 +420,4 @@ CONFIG_SECURITY=y
+ CONFIG_SECURITY_NETWORK=y
+ CONFIG_HARDENED_USERCOPY=y
+ CONFIG_SECURITY_SELINUX=y
+-CONFIG_DEFAULT_SECURITY_SELINUX=y
+\ No newline at end of file
++CONFIG_DEFAULT_SECURITY_SELINUX=y
+-- 
+2.7.4
+
